@@ -1,3 +1,5 @@
+import math
+
 """
 This class represent an agent with values between low and high for buying an item
 """
@@ -15,7 +17,7 @@ class Uniform:
 
     # Function that return the payment for this agent to the salesman's item
     def get_threshold(self)->float:
-        return self.high/2
+        return float(max(self.low, self.high/2))
 
 
 def max_revenue_auction(agent1:Uniform, value1:float)->None:
@@ -25,11 +27,26 @@ def max_revenue_auction(agent1:Uniform, value1:float)->None:
         Doctest:
         run with: python -m doctest -v maximize_values.py
 
+        #### agent1 (30,50) ####
+
+        >>> max_revenue_auction(Uniform(30,50), 30.001)
+        Agent1 wins and pays 30.0
+
+        >>> max_revenue_auction(Uniform(30,50), 31)
+        Agent1 wins and pays 30.0
+
+        >>> max_revenue_auction(Uniform(30,50), 40)
+        Agent1 wins and pays 30.0
+
+         #### agent1 (10,30) ####
+
         >>> max_revenue_auction(Uniform(10,30), 12)
         No agent wins
 
         >>> max_revenue_auction(Uniform(10,30), 18)
         Agent1 wins and pays 15.0
+
+        #### agent1 (20,40) ####
 
         >>> max_revenue_auction(Uniform(20,40), 19.9999)
         No agent wins
@@ -39,6 +56,17 @@ def max_revenue_auction(agent1:Uniform, value1:float)->None:
 
         >>> max_revenue_auction(Uniform(20,40), 20.0001)
         Agent1 wins and pays 20.0
+
+        #### agent1 (30,60) ####
+
+        >>> max_revenue_auction(Uniform(30,60), 30)
+        No agent wins
+
+        >>> max_revenue_auction(Uniform(30,60), 30.0001)
+        Agent1 wins and pays 30.0
+
+        >>> max_revenue_auction(Uniform(30,60), 31)
+        Agent1 wins and pays 30.0
 
         """
 
@@ -51,7 +79,8 @@ def max_revenue_auction(agent1:Uniform, value1:float)->None:
     else:
         print("No agent wins")
 
-def max_revenue_auction(agent1:Uniform, agent2:Uniform, value1:float, value2:float)->None:
+
+def max_revenue_auction(agent1: Uniform, agent2: Uniform, value1: float, value2: float) -> None:
     """Function that get 2 agents and value between low-high of the agents and
        shows which buyer won (if any) and how much he paid.
 
@@ -84,6 +113,18 @@ def max_revenue_auction(agent1:Uniform, agent2:Uniform, value1:float, value2:flo
             >>> max_revenue_auction(Uniform(10,30), Uniform(20,40), 16, 21)
             Agent1 wins and pays 15.0
 
+            #### 2 Agents: agent1 (30,50), agent2 (20,50) ####
+
+            >>> max_revenue_auction(Uniform(30,50), Uniform(20,50), 35, 30)
+            Agent1 wins and pays 30.0
+
+            >>> max_revenue_auction(Uniform(30,50), Uniform(20,50), 30, 30)
+            Agent1 wins and pays 30.0
+
+            >>> max_revenue_auction(Uniform(30,50), Uniform(20,50), 30, 40)
+            Agent2 wins and pays 30.0
+            
+
             """
 
     rv1 = agent1.get_RV(value1)
@@ -93,23 +134,23 @@ def max_revenue_auction(agent1:Uniform, agent2:Uniform, value1:float, value2:flo
     if rv1 <= 0 and rv2 <= 0:
         print("No agent wins")
     else:
-        # if only agent1 is good to the salesman profit
+        # if only agent2 is good to the salesman profit
         if rv1 <= 0:
             threshold_2 = agent2.get_threshold()
             print("Agent2 wins and pays", threshold_2)
-        # if only agent2 is good to the salesman profit
+        # if only agent1 is good to the salesman profit
         elif rv2 <= 0:
             threshold_1 = agent1.get_threshold()
             print("Agent1 wins and pays", threshold_1)
         # if both agents rv are positive - need to check which rv is greater and find the threshold - depend on the other agent value
         else:
-            if rv1 > rv2: # check how much agent 1 need to pay according to meyrson auction
+            if rv1 > rv2:  # check how much agent 1 need to pay according to meyrson auction
                 threshold_1 = payment_for_agent(agent1, value1, rv2)
                 print("Agent1 wins and pays", threshold_1)
-            elif rv2 > rv1: # check how much agent 2 need to pay according to meyrson auction
+            elif rv2 > rv1:  # check how much agent 2 need to pay according to meyrson auction
                 threshold_2 = payment_for_agent(agent2, value2, rv1)
                 print("Agent2 wins and pays", threshold_2)
-            else: # rv's of the agents are equal - sell the item to agent1 (arbitrary)
+            else:  # rv's of the agents are equal - sell the item to agent1 (arbitrary)
                 threshold_1 = agent1.get_threshold()
                 print("Agent1 wins and pays", threshold_1)
 
